@@ -1,17 +1,21 @@
 package Controller;
 
 import Model.Account;
+import Model.Message;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import Service.AccountService;
+import Service.MessageService;
 
 public class SocialMediaController {
     private AccountService accountService;
+    private MessageService messageService;
     private ObjectMapper mapper;
 
     public SocialMediaController() {
         this.accountService = new AccountService();
+        this.messageService = new MessageService();
         this.mapper = new ObjectMapper();
     }
 
@@ -20,7 +24,11 @@ public class SocialMediaController {
 
         app.post("/register", this::registerHandler);
         app.post("/login", this::loginHandler);
-
+        app.post("/messages", this::createMessageHandler);
+        app.get("/messages", ctx -> {
+            ctx.json(messageService.getAllMessages());
+            ctx.status(200);
+        });
         return app;
     }
 
@@ -55,6 +63,34 @@ public class SocialMediaController {
         } catch(Exception e) {
             ctx.status(401);
             ctx.result("");
+        }
+    }
+
+    private void createMessageHandler(Context ctx) {
+        try {
+            Message message = mapper.readValue(ctx.body(),Message.class);
+            Message createdMessage = messageService.createMessage(message);
+
+            if(createdMessage != null){
+                ctx.json(createdMessage);
+                ctx.status(200);
+            } else {
+                ctx.status(400);
+                ctx.result("");
+            }
+        } catch(Exception e) {
+            ctx.status(400);
+            ctx.result("");
+        }
+    }
+
+    private void getAllMessagesHandler(Context ctx) {
+        try {
+            ctx.json(messageService.getAllMessages());
+            ctx.status(200);
+        }  catch(Exception e) {
+            ctx.status(200);
+            ctx.result("[]");
         }
     }
 

@@ -23,14 +23,18 @@ public class MessageService {
             return null;
         }
 
-        // if (accountDAO.getAccountById(message.getPosted_by()) == null) {
-        //     return null;
-        // }
+        if (accountDAO.getAccountById(message.getPosted_by()) == null) {
+            return null;
+        }
 
         return messageDAO.createMessage(message);
     }
 
     public List<Message> getAllMessages() {
         return messageDAO.getAllMessages();
+    }
+
+    public Message getMessageById(int id) {
+        return messageDAO.getMessageById(id);
     }
 }

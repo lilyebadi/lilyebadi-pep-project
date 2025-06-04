@@ -21,13 +21,14 @@ public class SocialMediaController {
 
     public Javalin startAPI() {
         Javalin app = Javalin.create();
-
+        
         app.post("/register", this::registerHandler);
         app.post("/login", this::loginHandler);
         app.post("/messages", this::createMessageHandler);
         app.get("/messages", this::getAllMessagesHandler);
         app.get("/messages/{message_id}", this::getMessageByIdHandler);
         app.delete("/messages/{message_id}", this::deleteMessageHandler);
+        app.patch("/messages/{message_id}", this::updateMessageHandler);
 
         return app;
     }
@@ -114,6 +115,27 @@ public class SocialMediaController {
             ctx.status(200);
         } catch(Exception e) {
             ctx.status(200);
+            ctx.result("");
+        }
+    }
+
+    private void updateMessageHandler(Context ctx) {
+        try {
+            int messageId = Integer.parseInt(ctx.pathParam("message_id"));
+            Message messageUpdate = mapper.readValue(ctx.body(), Message.class);
+            String newMessageText = messageUpdate.getMessage_text();
+            
+            Message updatedMessage = messageService.updateMessageText(messageId, newMessageText);
+            
+            if(updatedMessage != null) {
+                ctx.json(updatedMessage);
+                ctx.status(200);
+            } else {
+                ctx.status(400);
+                ctx.result("");
+            }
+        } catch(Exception e) {
+            ctx.status(400);
             ctx.result("");
         }
     }

@@ -7,6 +7,8 @@ import io.javalin.http.Context;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import Service.AccountService;
 import Service.MessageService;
+import java.util.List;
+import java.util.ArrayList;
 
 public class SocialMediaController {
     private AccountService accountService;
@@ -29,6 +31,7 @@ public class SocialMediaController {
         app.get("/messages/{message_id}", this::getMessageByIdHandler);
         app.delete("/messages/{message_id}", this::deleteMessageHandler);
         app.patch("/messages/{message_id}", this::updateMessageHandler);
+        app.get("/accounts/{account_id}/messages", this::getMessagesByUserHandler);
 
         return app;
     }
@@ -137,6 +140,18 @@ public class SocialMediaController {
         } catch(Exception e) {
             ctx.status(400);
             ctx.result("");
+        }
+    }
+
+    private void getMessagesByUserHandler(Context ctx) {
+        try {
+            int accountId = Integer.parseInt(ctx.pathParam("account_id"));
+            List<Message> messages = messageService.getMessagesByUser(accountId);
+            ctx.json(messages);
+            ctx.status(200);
+        } catch(Exception e) {
+            ctx.status(200);
+            ctx.json(new ArrayList<>());
         }
     }
 
